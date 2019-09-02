@@ -1,0 +1,54 @@
+# Deployment definition is almost same as ReplicaSet, the only difference is kind tag
+# kubectl create -f deployment.yml
+# deployment.apps/myapp-deployment created
+# [root@rksnode-1 ~]# kubectl get deployment
+#NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+#myapp-deployment   3/3     3            3           47s
+#nginx              1/1     1            1           22h
+# deployment automatically create replicaset
+# [root@rksnode-1 ~]# kubectl get replicaset
+#NAME                          DESIRED   CURRENT   READY   AGE
+#myapp-deployment-754fdd945d   3         3         3       56s
+#nginx-7bb7cd8db5              1         1         1       22h
+
+# kubectl get all
+# kubectl describe deployment
+# Roll out command:
+# kubectl rollout status deployment/myapp-deployment
+# Rollout History:
+#  kubectl rollout history deployment/myapp-deployment
+#  deployment.extensions/myapp-deployment
+#  REVISION  CHANGE-CAUSE
+#  1         <none>
+
+# Rollout strategy : recreate and rolling upgrade : checkout the stragegy Type in kubectl describe deployment
+# Rollback
+## kubectl rollout undo deployment/myapp-deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    app: myapp
+    type: frontend
+
+
+
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+
+  replicas: 3
+  selector:
+    matchLabels:
+      type: front-end

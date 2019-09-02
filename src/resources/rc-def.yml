@@ -1,0 +1,26 @@
+# Create Replication Controller
+# kubectl create -f rc-def.yml
+#  kubectl get replicationcontroller
+#  NAME       DESIRED   CURRENT   READY   AGE
+#  myapp-rc   3         3         3       34s
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
