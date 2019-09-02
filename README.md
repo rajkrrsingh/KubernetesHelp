@@ -1,3 +1,5 @@
+# KubernetesHelp
+
 **List all namespaces**
 ```bash
 kubectl get ns
@@ -13,8 +15,8 @@ kubectl create namespace dummyns
 namespace/dummyns created
 
 ```
- [or using YAML] (src/resources/mynamespace-def.yml)
-
+ [or using YAML]( ../src/resources/mynamespace-def.yml )
+ 
 **Getting Full YAML of deployed POD**
 ```aidl
 kubectl get po myapp-pod -o yaml
@@ -57,6 +59,3 @@ kubectl get po -l '!standalone'
 
 ```
 
-
-
-# KubernetesHelp
