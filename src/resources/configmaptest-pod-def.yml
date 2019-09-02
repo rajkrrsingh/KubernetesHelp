@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: printconfigmap
+spec:
+  containers:
+    - name: oscontainer
+      image: centos:7
+      command:
+        - "bin/bash"
+        - "-c"
+        - "env"
+      env:
+        - name: MY_NAME_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: myliteralconfig
+              key: myname
+  restartPolicy: Never

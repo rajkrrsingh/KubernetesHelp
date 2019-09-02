@@ -1,5 +1,5 @@
 # kubectl create -f service-def.yml
-# kubectl get services
+# kubectl get services / kubectl get svc
 apiVersion: v1
 kind: Service
 metadata:

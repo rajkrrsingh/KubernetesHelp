@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-with-emptydir
+
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+      volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp/emptydir
+  volumes:
+    - name: tmp-volume
+      emptyDir: {}
