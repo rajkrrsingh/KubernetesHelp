@@ -117,7 +117,7 @@ myapp-rc   5         5         5       28h
 
 ***DAEMONSET: To Deploy ONLY ONE NODE on every node or subset of nodes inside cluster***
 
-[create daemonset using yaml definition](../master/src/resources/daemonset-def.yml)
+[create daemonset using yaml definition](../master/src/resources/daemonset-def.yaml)
 
 ```kubernetes helm
 kubectl create -f daemonset-def.yaml
