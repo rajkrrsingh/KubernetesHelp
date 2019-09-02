@@ -1,0 +1,21 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: printimenow
+
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: printtimepod
+        spec:
+          containers:
+            - name: oscontainer
+              image: centos:7
+              command:
+                - "bin/bash"
+                - "-c"
+                - "date"
+          restartPolicy: OnFailure
+  schedule: "0,15,30,45 * * * *"

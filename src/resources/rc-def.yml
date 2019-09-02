@@ -1,8 +1,13 @@
 # Create Replication Controller
 # kubectl create -f rc-def.yml
-#  kubectl get replicationcontroller
+#  kubectl get replicationcontroller / kubectl get rc
 #  NAME       DESIRED   CURRENT   READY   AGE
 #  myapp-rc   3         3         3       34s
+#
+# kubectl describe rc myapp-rc
+#
+# Delete Replication Controller
+# kubectl delete rc myapp-rc --cascade=false
 apiVersion: v1
 kind: ReplicationController
 metadata:

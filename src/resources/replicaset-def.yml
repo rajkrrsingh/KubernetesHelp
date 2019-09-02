@@ -1,7 +1,7 @@
 # kubectl create -f replicaset-def.yml
 # kubectl get pods
 # scale using kubectl scale --replicas=6 -f replicaset-def.yml
-# kubectl get replicaset
+# kubectl get replicaset /kubectl get rs
 # kubectl delete replicaset myapp-replicaset
 apiVersion: apps/v1
 kind: ReplicaSet
