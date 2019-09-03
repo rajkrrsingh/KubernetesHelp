@@ -1,5 +1,92 @@
 # Kubernetes Commands for day to day Work
 
+***Kubernetes Components****
+- Master
+    - etcd distributed persistent storage
+    - API Server
+    [kubeapiserver](https://github.com/kubernetes/kubernetes/tree/master/pkg/kubeapiserver)
+
+    - Scheduler
+    [scheduler pkg](https://github.com/kubernetes/kubernetes/tree/master/pkg/scheduler)
+    - Controller Manager
+    [controller](https://github.com/kubernetes/kubernetes/tree/master/pkg/controller)
+
+- Worker Nodes
+    - Kubelet
+    - Kube-proxy
+    - Container Runtime
+    
+- Add ons
+    - K8s DNS Server
+    - Dashboard
+    - Ingress Controller
+    - Container Network Interface Plugin
+    
+***Controllers running in the Controller Manager***
+
+    - Node controller
+    - Replication Manager
+    - Namespace controller
+    - Service controller
+    - Endpoints controller
+    - ReplicaSet, DaemonSet and Job controllers
+    - Deployment controller
+    - StatefulSet controller
+    - Namespace controller
+    - PersistentVolume controller
+    
+***Get where the Master is running in the cluster***
+```kubernetes helm
+kubectl cluster-info 
+Kubernetes master is running at https://172.26.88.185:6443
+KubeDNS is running at https://172.26.88.185:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+```
+
+***Check Component status***
+```kubernetes helm
+kubectl get componentstatuses
+NAME                 STATUS    MESSAGE             ERROR
+controller-manager   Healthy   ok                  
+scheduler            Healthy   ok                  
+#etcd-0               Healthy   {"health":"true"}   
+```
+
+***Kubernetes components running as pods***
+```kubernetes helm
+kubectl get po   -n kube-system -o wide
+NAME                                       READY   STATUS    RESTARTS   AGE    IP                NODE        NOMINATED NODE   READINESS GATES
+calico-kube-controllers-65b8787765-dw55f   1/1     Running   0          2d5h   192.168.160.129   rksnode-1   <none>           <none>
+calico-node-jp9pt                          1/1     Running   0          2d5h   172.26.88.186     rksnode-2   <none>           <none>
+calico-node-lx7qj                          1/1     Running   0          2d5h   172.26.88.187     rksnode-3   <none>           <none>
+calico-node-srr2f                          1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+coredns-5c98db65d4-2pwzl                   1/1     Running   0          2d5h   192.168.160.131   rksnode-1   <none>           <none>
+coredns-5c98db65d4-9x2ld                   1/1     Running   0          2d5h   192.168.160.130   rksnode-1   <none>           <none>
+etcd-rksnode-1                             1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+kube-apiserver-rksnode-1                   1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+kube-controller-manager-rksnode-1          1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+kube-proxy-5hr5x                           1/1     Running   0          2d5h   172.26.88.186     rksnode-2   <none>           <none>
+kube-proxy-7rng8                           1/1     Running   0          2d5h   172.26.88.187     rksnode-3   <none>           <none>
+kube-proxy-sqq4b                           1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+kube-scheduler-rksnode-1                   1/1     Running   0          2d5h   172.26.88.185     rksnode-1   <none>           <none>
+
+### pods running on rksnode-1 belongs to master components
+### No component directly talk to etcd, API server is to serve the request to modify cluster state and talk to etcd
+```
+
+***Look up etcld****
+```kubernetes helm
+curl -L https://github.com/coreos/etcd/releases/download/v3.2.10/etcd-v3.2.10-linux-amd64.tar.gz | gunzip -c | tar xO etcd-v3.2.10-linux-amd64/etcdctl > etcdctl && chmod +x etcdctl
+export ETCDCTL_API=3
+etcld get /registry
+```
+
+***Watching events emitted by controller***
+```kubernetes helm
+kubectl get events --watch
+```
 ***List cluster nodes***
 ```kubernetes helm
 kubectl get node
