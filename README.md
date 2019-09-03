@@ -410,3 +410,118 @@ MY_NAME_KEY=raj
 . 
 ...
 ```
+
+***Using Secrets***
+
+command format : kubectl create secret $type $name $data
+
+type:
+```kubernetes helm
+generic 
+    - File
+    - Directory
+    - Literal values
+docker registry
+tls
+``` 
+
+data:
+```kubernetes helm
+--from-file or --from-literal
+```
+
+e.g.
+```kubernetes helm
+echo "myusername" > username.txt
+echo "mypassword" > password.txt
+
+kubectl create secret generic service-user-pass --from-file=username.txt --from-file=password.txt 
+secret/service-user-pass created
+
+kubectl get secret
+NAME                  TYPE                                  DATA   AGE
+default-token-lrm66   kubernetes.io/service-account-token   3      2d
+service-user-pass     Opaque                                2      73s
+
+kubectl describe secret service-user-pass
+Name:         service-user-pass
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+password.txt:  11 bytes
+username.txt:  11 bytes
+
+```
+
+
+- Creating Secret Manually
+```kubernetes helm
+echo -n "myusername" | base64
+bXl1c2VybmFtZQ==
+
+echo -n "mypassword" | base64
+bXlwYXNzd29yZA==
+
+kubectl create -f mysecret-def.yml 
+secret/mysecret created
+
+ kubectl get secret mysecret -o yaml
+apiVersion: v1
+data:
+  password: bXlwYXNzd29yZA==
+  username: bXl1c2VybmFtZQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2019-09-03T00:09:14Z"
+  name: mysecret
+  namespace: default
+  resourceVersion: "259133"
+  selfLink: /api/v1/namespaces/default/secrets/mysecret
+  uid: 8938d31d-ec47-4ca9-8237-ed5362116c15
+type: Opaque
+
+```
+[create secret manually](../master/src/resources/mysecret-def.yml)
+
+- consuming secret in Pods
+    - using volume
+    - using env variables
+    
+[create pod which mount secret volume in pod](../master/src/resources/mysecret-pod-using-vol.yml)
+
+```kubernetes helm
+
+ kubectl create -f mysecret-pod-using-vol.yml 
+pod/mypod created
+
+ kubectl get po | grep mypod
+mypod                               1/1     Running     0          68s
+
+ kubectl exec mypod ls /etc/foo
+password
+username
+
+kubectl exec mypod cat /etc/foo/username
+myusername
+
+kubectl exec mypod cat /etc/foo/password
+mypassword
+```
+
+[create pod which uses secret in env](../master/src/resources/mysecret-pod-using-env.yml)
+```kubernetes helm
+kubectl create -f mysecret-pod-using-env.yml 
+
+kubectl get po mypod-with-env
+NAME             READY   STATUS    RESTARTS   AGE
+mypod-with-env   1/1     Running   0          21s
+
+kubectl exec mypod-with-env env | grep MY
+MY_USER_NAME=myusername
+MY_USER_PASSWORD=mypassword
+```
