@@ -15,13 +15,13 @@
     - Kubelet
     - Kube-proxy
     - Container Runtime
-    
+
 - Add ons
     - K8s DNS Server
     - Dashboard
     - Ingress Controller
     - Container Network Interface Plugin
-    
+
 ***Controllers running in the Controller Manager***
 
     - Node controller
@@ -34,14 +34,44 @@
     - StatefulSet controller
     - Namespace controller
     - PersistentVolume controller
-    
+
 ***Get where the Master is running in the cluster***
 ```kubernetes helm
-kubectl cluster-info 
+kubectl cluster-info
 Kubernetes master is running at https://172.26.88.185:6443
 KubeDNS is running at https://172.26.88.185:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+```
+
+***Get Kubernetes config****
+```
+kubectl config view
+
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+contexts:
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-desktop
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-for-desktop
+current-context: docker-desktop
+kind: Config
+preferences: {}
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
 
 ```
 
@@ -108,17 +138,17 @@ namespace/dummyns created
 
 ```
  [or using YAML](../master/src/resources/mynamespace-def.yml)
- 
+
  **Creating pod in namespace***
  ```kubernetes helm
  kubectl create -f pod-definition.yml -n dummyns
 pod/myapp-pod created
 ```
- 
+
 **Creating a pod**
 [create pod using yml](../master/src/resources/pod-definition.yml)
 
- 
+
 **Getting Full YAML of deployed POD**
 ```aidl
 kubectl get po myapp-pod -o yaml
@@ -152,12 +182,12 @@ myapp-pod                           1/1     Running   0          25h     app=mya
 
 **Listing Pod using label selector**
 ```kubernetes helm
-kubectl get po -l standalone=true 
+kubectl get po -l standalone=true
 NAME        READY   STATUS    RESTARTS   AGE
 myapp-pod   1/1     Running   0          25h
 
 those who dont have standalone labels can be queried using
-kubectl get po -l '!standalone' 
+kubectl get po -l '!standalone'
 
 ```
 
@@ -184,7 +214,7 @@ kubectl edit rc myapp-rc
 ***Scaling ReplicationController***
 ```kubernetes helm
 kubectl scale rc myapp-rc --replicas=5
- kubectl get rc 
+ kubectl get rc
 NAME       DESIRED   CURRENT   READY   AGE
 myapp-rc   5         5         5       28h
 ```
@@ -209,21 +239,21 @@ myapp-rc   5         5         5       28h
 ```kubernetes helm
 kubectl create -f daemonset-def.yaml
 kubectl get ds
-kubectl get pod -o wide 
+kubectl get pod -o wide
 kubectl describe ds fluentd-ds
 ```
 
 ***JOB: Run Job until completion(e.g. Batch Job)***
 
-- each job creates one or more Pods, 
-- Ensure they are successfully terminated, 
-- can run multiple pods in parallel, 
-- can scale up/down pods 
+- each job creates one or more Pods,
+- Ensure they are successfully terminated,
+- can run multiple pods in parallel,
+- can scale up/down pods
 
 [Create Job using yaml definition](../master/src/resources/job-def.yml)
 
 ```kubernetes helm
-kubectl create -f job-def.yml 
+kubectl create -f job-def.yml
 kubectl get job
 kubectl describe jobs printenv
 kubectl get pods
@@ -244,7 +274,7 @@ kubectl scale job printenv --replicas 3
 [create cron job using yaml definition](../master/src/resources/cronjob-def.yml)
 
 ```kubernetes helm
-kubectl create -f cron-job-def.yml 
+kubectl create -f cron-job-def.yml
 cronjob.batch/printimenow created
 
 kubectl get cronjob
@@ -285,7 +315,7 @@ HOME=/root
 
 -- Inside the container
 kubectl exec -it myapp-rc-nhcgr bash
-root@myapp-rc-nhcgr:/# 
+root@myapp-rc-nhcgr:/#
 ```
 
 ***Get the details of service deployed***
@@ -323,7 +353,7 @@ kubectl get endpoints myapp-service
 [Create LoadBalancer Service using yaml definition](../master/src/resources/loadbalance-def.yml)
 
 ```kubernetes helm
- kubectl create -f loadbalancer-def.yml 
+ kubectl create -f loadbalancer-def.yml
 get svc myapp-loadbalance-service
 NAME                        TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
 myapp-loadbalance-service   LoadBalancer   10.103.29.113   <pending>     80:30044/TCP   2m34s
@@ -373,12 +403,12 @@ command terminated with exit code 1
 - Cloud provider specific storage:-
     - gcePersistentDisk :- google compute engine persistent disk
     - awkElasticBlockStore :- AWS elastic blockstore volume.
-    - azureDisk :- MS azure disk volume 
+    - azureDisk :- MS azure disk volume
 - Network storage :-
     - [cinder](https://docs.okd.io/latest/install_config/persistent_storage/persistent_storage_cinder.html)
     - [cephFS](https://docs.ceph.com/docs/master/cephfs/)
     - [glusterfs](https://github.com/gluster/gluster-kubernetes)
-    - [Flexvolume](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-storage/flexvolume.md) 
+    - [Flexvolume](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-storage/flexvolume.md)
 - ConfigMap,secret,downwardAPI :- kubernetes provided special volume to expose resources to pod/containers
 - PersistentVolumeClaim :- dynamically provisioned persistent storage.
 
@@ -389,7 +419,7 @@ A Pod can use multiple volumes of different types at same time, each of the pod'
 [create emptyDir using yaml definition](../master/src/resources/pod-with-emptydir-def.yml)
 
 ```kubernetes helm
-kubectl create -f pod-with-empty-dir.yml 
+kubectl create -f pod-with-empty-dir.yml
 pod/myapp-with-emptydir created
 
 kubectl get po | grep empty
@@ -403,7 +433,7 @@ kubectl exec myapp-with-emptydir df /tmp/emptydir
 #Filesystem     1K-blocks    Used Available Use% Mounted on
 /dev/vda1       83872132 3336460  80535672   4% /tmp/emptydir
 
-kubectl describe pod myapp-with-emptydir 
+kubectl describe pod myapp-with-emptydir
 
 -- check for
 Mounts:
@@ -416,7 +446,7 @@ Mounts:
 [Create HostPath using yaml definition](../master/src/resources/hostPath-def.yml)
 
 ```kubernetes helm
-kubectl create -f hostpath-def.yml 
+kubectl create -f hostpath-def.yml
 kubectl get po myapp-with-hostpath -o wide
 NAME                  READY   STATUS    RESTARTS   AGE   IP                NODE        NOMINATED NODE   READINESS GATES
 myapp-with-hostpath   1/1     Running   0          18s   192.168.121.140   rksnode-2   <none>           <none>
@@ -451,7 +481,7 @@ Decouple configuration from containers and Pods, store configs in key/value pair
 ```kubernetes helm
 Creating Config Map
 kubectl create configmap <map-name> <data-source>
-data-source 
+data-source
 - path to dir/file: -from-file
 - key value pair: -from-literal
 
@@ -483,7 +513,7 @@ metadata:
   selfLink: ""
 
 
-- Creating config map using literal 
+- Creating config map using literal
 kubectl create configmap myliteralconfig --from-literal=myname=raj
 configmap/myliteralconfig created
 ```
@@ -494,7 +524,7 @@ refrencing the configmap in pod[ create pod which refer our config map](../maste
  kubectl create -f configmap-test.yml
 kubectl logs printconfigmap
 MY_NAME_KEY=raj
-. 
+.
 ...
 ```
 
@@ -504,13 +534,13 @@ command format : kubectl create secret $type $name $data
 
 type:
 ```kubernetes helm
-generic 
+generic
     - File
     - Directory
     - Literal values
 docker registry
 tls
-``` 
+```
 
 data:
 ```kubernetes helm
@@ -522,7 +552,7 @@ e.g.
 echo "myusername" > username.txt
 echo "mypassword" > password.txt
 
-kubectl create secret generic service-user-pass --from-file=username.txt --from-file=password.txt 
+kubectl create secret generic service-user-pass --from-file=username.txt --from-file=password.txt
 secret/service-user-pass created
 
 kubectl get secret
@@ -554,7 +584,7 @@ bXl1c2VybmFtZQ==
 echo -n "mypassword" | base64
 bXlwYXNzd29yZA==
 
-kubectl create -f mysecret-def.yml 
+kubectl create -f mysecret-def.yml
 secret/mysecret created
 
  kubectl get secret mysecret -o yaml
@@ -578,12 +608,12 @@ type: Opaque
 - consuming secret in Pods
     - using volume
     - using env variables
-    
+
 [create pod which mount secret volume in pod](../master/src/resources/mysecret-pod-using-vol.yml)
 
 ```kubernetes helm
 
- kubectl create -f mysecret-pod-using-vol.yml 
+ kubectl create -f mysecret-pod-using-vol.yml
 pod/mypod created
 
  kubectl get po | grep mypod
@@ -602,7 +632,7 @@ mypassword
 
 [create pod which uses secret in env](../master/src/resources/mysecret-pod-using-env.yml)
 ```kubernetes helm
-kubectl create -f mysecret-pod-using-env.yml 
+kubectl create -f mysecret-pod-using-env.yml
 
 kubectl get po mypod-with-env
 NAME             READY   STATUS    RESTARTS   AGE
