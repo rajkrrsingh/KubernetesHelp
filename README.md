@@ -642,3 +642,33 @@ kubectl exec mypod-with-env env | grep MY
 MY_USER_NAME=myusername
 MY_USER_PASSWORD=mypassword
 ```
+
+#### Decoding kubeconfig to access cluster remotely:
+```
+cat kubeconfig
+grab following encoded string
+--  certificate-authority-data
+--  client-certificate-data
+--  client-key-data
+--  server
+
+echo "---certificate-authority-data string --" | base64 -d > ca.pem 
+verify cert 
+openssl x509 -in ca.pem -text -noout
+
+
+echo "----client-certificate-data --- " | base64 -d > client-crt.pem
+verify client cert 
+openssl x509 -in client-crt.pem -text -noout
+
+echo "---client-key-data string ---" | base64 -d > client-key.pem
+
+match key with cert
+openssl pkey -in client-key.pem -pubout -outform pem 
+openssl x509 -in client-crt.pem -pubkey -noout -outform pem
+
+run curl command
+curl -v --cacert ca.pem --key client-key.pem --cert client-crt.pem https://serverip:6443
+
+
+```
