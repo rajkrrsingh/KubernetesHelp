@@ -697,3 +697,48 @@ users:
     client-certificate-data: REDACTED
     client-key-data: REDACTED
 ```
+
+#### Intalling k8s dashboard and accessing the dashboard from outside 
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+alias k=kubectl
+k get all -n kubernetes-dashboard
+k -n  kubernetes-dashboard get svc
+if the service is listing only ClusterIP then there is need to configure the NodeIP
+k -n  kubernetes-dashboard  edit service kubernetes-dashboard - change type: ClusterIP to NodeIP
+
+k -n  kubernetes-dashboard get svc
+kubernetes-dashboard        NodePort    hostname   <none>        443:someip/TCP   23m
+
+open browser to access hostname:someip, it will request kubeconfig or token 
+
+preferred way is token
+
+create a service account and get the token of it to access ui
+
+cat admin-user-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kube-system
+
+k create -f admin-user-sa.yaml
+
+kubectl -n kube-system describe secret  -- check the admin-user token here, copy it and provide the input in UI.
+
+```
