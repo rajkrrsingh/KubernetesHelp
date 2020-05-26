@@ -742,3 +742,67 @@ k create -f admin-user-sa.yaml
 kubectl -n kube-system describe secret  -- check the admin-user token here, copy it and provide the input in UI.
 
 ```
+
+#### Benchmark/Perf troubleshooting
+```
+-- Disk 
+-- benchmark of the host machine
+dd if=/dev/zero bs=1M count=256 | md5sum
+
+--run same command on docker container 
+docker run -it ubuntu bash -c 'dd if=/dev/zero bs=1M count=256 | md5sum'
+
+
+-- cpu 
+install iperf
+curl -LO https://iperf.fr/download/archlinux/iperf-2.0.5-9-x8
+yes | pacman -U iperf-2.0.5-9-x86_64.pkg.tar.xz
+
+
+nohup iperf -s -p 5002 >/dev/null 2>&1 &
+iperf -c localhost -p 5002
+
+you will get the baseline of what the machine is capable of processing when all processes are on the same machine.
+
+do similar test on docker 
+docker run -d -p 5001:5001 --name mapped-iperf benhall/iperf iperf -s
+
+iperf -c localhost
+
+```
+
+#### Inspecting Containers
+
+```
+get entrypoint.sh
+kubectl exec $POD_NAME -- cat entrypoint.sh
+
+get into the container shell 
+kubectl exec -it $POD_NAME -- /bin/sh
+
+Running linux commnads to do basic troubleshooting
+
+kubectl exec $POD_NAME -- uptime
+
+kubectl exec $POD_NAME -- ps
+
+kubectl exec $POD_NAME -- stat -f /
+
+kubectl exec $POD_NAME --container container_name -- lsof // if pod have multi container 
+
+kubectl exec $POD_NAME --container container_name-logger -- iostat // if pod have multi container 
+
+kubernetes metrics 
+
+on master node 
+kubectl proxy &
+curl localhost:8001/metrics
+
+```
+
+
+
+
+
+
+
