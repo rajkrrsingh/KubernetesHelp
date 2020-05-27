@@ -670,6 +670,16 @@ openssl x509 -in client-crt.pem -pubkey -noout -outform pem
 run curl command
 curl -v --cacert ca.pem --key client-key.pem --cert client-crt.pem https://serverip:6443
 
+without ca cert:-
+APISERVER=$(kubectl config view -o \
+    jsonpath='{.clusters[*].cluster.server}')
+    
+TOKEN=$(kubectl get secrets \
+    -o jsonpath='{.items[?(@.type=="kubernetes.io/service-account-token")].data.token}' \
+    | base64 --decode)
+   
+curl $APISERVER/version --header "Authorization: Bearer $TOKEN" --insecure
+
 
 ```
 
