@@ -75,6 +75,11 @@ users:
 
 ```
 
+***Know supported API versions and/or resources on the cluster
+```
+kubectl api-resources
+```
+
 ***Check Component status***
 ```kubernetes helm
 kubectl get componentstatuses
