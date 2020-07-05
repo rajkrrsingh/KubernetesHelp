@@ -816,7 +816,10 @@ curl localhost:8001/metrics
 ```
 
 
-
+#### Kubectl command verbose logging
+```
+kubectl get pods -v=8
+```
 
 
 
