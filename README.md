@@ -821,6 +821,73 @@ curl localhost:8001/metrics
 kubectl get pods -v=8
 ```
 
+#### Creating a user to Kubernetes cluster and adding clusteradminrole to it
+```
+// create key 
+openssl genrsa -out raj.key 2048
+// create certificate signing request
+openssl req -new -key raj.key -out raj.csr -subj "/CN=raj/O=test-group"
+// create cert after signing it by kubernetes CA
+openssl x509 -req -in raj.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out raj.crt -days 365
 
+// get cluster config 
+k config view
+k --kubeconfig raj-kubeconfig config set-cluster kubernetes --server https://IP:6443 --certificate-authority=/etc/kubernetes/pki/ca.crt
+k --kubeconfig raj-kubeconfig config set-credentials raj --client-certificate raj.crt --client-key raj.key 
+k --kubeconfig raj-kubeconfig config set-context raj-kubernetes --cluster kubernetes 
+set user and current-context 
+
+cat raj-kubeconfig 
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://IP:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: raj
+  name: raj-kubernetes
+current-context: raj-kubernetes
+kind: Config
+preferences: {}
+users:
+- name: raj
+  user:
+    client-certificate: raj.crt
+    client-key: raj.key
+
+
+export KUBECONFIG=raj-kubeconfig
+k get pods -- this will result into the authorization failure on default namespace
+
+lets create the rks-min-admin-role and add the clusterrolebindings for user raj
+
+# kubectl get clusterrolebindings rks-min-admin-role -o yaml
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1beta1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"name":"rks-min-admin-role"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"rks-min-admin-role"},"subjects":[{"kind":"User","name":"raj"}]}
+  creationTimestamp: "2020-05-23T03:51:42Z"
+  name: rks-min-admin-role
+  resourceVersion: "38517610"
+  selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/rks-min-admin-role
+  uid: ccef1fd1-6a7b-48c3-8a00-a69d8984c88f
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rks-min-admin-role
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: raj
+
+
+now raj will able to list/create/delete pods
+```
 
 
